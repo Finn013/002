@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Оффлайн Конвертер Валют</title>
-  <link rel="manifest" href="/manifest.json">
+  <link rel="manifest" href="manifest.json">
 <style>
     :root {
       --primary: #4caf50;
@@ -846,11 +846,14 @@
       // Включаем глобальный доступ к функции удаления записи
       window.deleteEntry = deleteEntry;
     });
+
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js')
-    .then(() => console.log('Service Worker зарегистрирован'))
-    .catch(err => console.error('Ошибка регистрации Service Worker:', err));
-}
+    navigator.serviceWorker.register('sw.js').then(function(reg) {
+      console.log('Service Worker зарегистрирован:', reg);
+    }).catch(function(e) {
+      console.error('Service Worker ошибка:', e);
+    });
+  }
 </script>
 </body>
 </html>
