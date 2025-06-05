@@ -1,7 +1,7 @@
 {
-  "name": "Долгосрочные дела",
-  "short_name": "Дела",
-  "description": "Ваш личный список долгосрочных задач и покупок",
+  "name": "$$$",
+  "short_name": "Coin",
+  "description": "$",
   "start_url": "013.html",
   "display": "standalone",
   "background_color": "#ffffff",
