@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Оффлайн Конвертер Валют</title>
+  <link rel="manifest" href="/manifest.json">
+<style>
+    :root {
+      --primary: #4caf50;
+      --danger: #dc3545;
+      --warning: #ffc107;
+      --light-bg: #f4f4f9;
+      --light-surface: #ffffff;
+      --light-text: #333333;
+      --light-border: #dddddd;
+      --dark-bg: #121212;
+      --dark-surface: #1e1e1e;
+      --dark-text: #f4f4f9;
+      --dark-border: #444444;
+      --graphite-bg: #2c3e50;
+      --graphite-surface: #34495e;
+      --graphite-text: #ecf0f1;
+      --graphite-border: #566573;
+      --radius: 10px;
+      --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      margin: 0;
+      padding: 16px;
+      background-color: var(--light-bg);
+      color: var(--light-text);
+      transition: var(--transition);
+      line-height: 1.5;
+    }
+
+    body.dark {
+      background-color: var(--dark-bg);
+      color: var(--dark-text);
+    }
+
+    body.graphite {
+      background-color: var(--graphite-bg);
+      color: var(--graphite-text);
+    }
+
+    h1, h2, h3 {
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      text-align: center;
+      margin-top: 16px;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+    }
+
+    h3 {
+      font-size: 1.2rem;
+      margin-top: 20px;
+    }
+
+    .app-container {
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    .converter {
+      background: var(--light-surface);
+      padding: 20px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    body.dark .converter {
+      background: var(--dark-surface);
+      color: var(--dark-text);
+    }
+
+    body.graphite .converter {
+      background: var(--graphite-surface);
+      color: var(--graphite-text);
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 12px;
+      border-radius: var(--radius);
+      font-size: 16px;
+      transition: var(--transition);
+      outline: none;
+    }
+
+    input, select {
+      background-color: var(--light-surface);
+      color: var(--light-text);
+      border: 1px solid var(--light-border);
+    }
+
+    body.dark input, body.dark select,
+    body.graphite input, body.graphite select {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: var(--dark-text);
+      border-color: var(--dark-border);
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.25);
+    }
+
+    button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    button:hover {
+      filter: brightness(110%);
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    button.secondary {
+      background-color: #6c757d;
+    }
+
+    button.danger {
+      background-color: var(--danger);
+    }
+
+    button.warning {
+      background-color: var(--warning);
+      color: #333;
+    }
+
+    .result {
+      margin: 20px 0;
+      padding: 16px;
+      background-color: rgba(76, 175, 80, 0.1);
+      border-radius: var(--radius);
+      border-left: 4px solid var(--primary);
+      font-size: 1.2rem;
+      font-weight: 500;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: var(--transition);
+    }
+
+    .result.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    body.dark .result {
+      background-color: rgba(76, 175, 80, 0.2);
+    }
+
+    .theme-switcher {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      display: flex;
+      gap: 8px;
+      z-index: 10;
+    }
+
+    .theme-btn {
+      width: 30px;
+      height: 30px;
+      min-width: 30px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform 0.2s;
+      padding: 0;
+    }
+
+    .theme-btn:hover {
+      transform: scale(1.1);
+    }
+
+    .theme-btn.active {
+      border-color: var(--primary);
+    }
+
+    #lightTheme { 
+      background-color: #f4f4f9; 
+    }
+
+    #graphiteTheme { 
+      background-color: #2c3e50; 
+    }
+
+    #darkTheme { 
+      background-color: #121212; 
+    }
+
+    .section {
+      border-top: 1px solid var(--light-border);
+      padding-top: 20px;
+      margin-top: 20px;
+    }
+
+    body.dark .section,
+    body.graphite .section {
+      border-top-color: var(--dark-border);
+    }
+
+    .collapsible-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      padding: 10px 0;
+    }
+
+    .collapsible-header::after {
+      content: '▼';
+      font-size: 0.8rem;
+      transition: var(--transition);
+    }
+
+    .collapsible-header.collapsed::after {
+      transform: rotate(-90deg);
+    }
+
+    .collapsible-content {
+      max-height: 1000px;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .collapsible-content.collapsed {
+      max-height: 0;
+    }
+
+    .currencies-list {
+      list-style: none;
+      padding: 0;
+      margin: 16px 0;
+    }
+
+    .currencies-list li {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      padding: 8px;
+      background-color: rgba(0, 0, 0, 0.05);
+      border-radius: var(--radius);
+    }
+
+    body.dark .currencies-list li,
+    body.graphite .currencies-list li {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .btn-group button {
+      flex: 1;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--light-border);
+    }
+
+    th {
+      background-color: rgba(0, 0, 0, 0.05);
+      font-weight: 600;
+    }
+
+    body.dark th, body.dark td,
+    body.graphite th, body.graphite td {
+      border-bottom-color: var(--dark-border);
+    }
+
+    body.dark th,
+    body.graphite th {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .action-btn {
+      background-color: transparent;
+      color: var(--primary);
+      box-shadow: none;
+      text-transform: none;
+      letter-spacing: normal;
+      padding: 6px 12px;
+    }
+
+    .action-btn.delete {
+      color: var(--danger);
+    }
+
+    /* Mobile specific styles */
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+        margin-top: 8px;
+      }
+
+      .converter {
+        padding: 16px;
+      }
+
+      .theme-switcher {
+        top: 10px;
+        right: 10px;
+      }
+
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+
+      thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+      }
+
+      tr {
+        margin-bottom: 15px;
+        border: 1px solid var(--light-border);
+        border-radius: var(--radius);
+      }
+
+      body.dark tr,
+      body.graphite tr {
+        border-color: var(--dark-border);
+      }
+
+      td {
+        border: none;
+        position: relative;
+        padding-left: 50%;
+        display: flex;
+        align-items: center;
+      }
+
+      td:before {
+        position: absolute;
+        left: 12px;
+        width: 45%;
+        font-weight: bold;
+      }
+
+      td:nth-of-type(1):before { content: "Время"; }
+      td:nth-of-type(2):before { content: "Дата"; }
+      td:nth-of-type(3):before { content: "Сумма"; }
+      td:nth-of-type(4):before { content: "Примечание"; }
+      td:nth-of-type(5):before { content: "Действия"; }
+    }
+
+    /* Medium screens */
+    @media (min-width: 481px) and (max-width: 768px) {
+      .converter {
+        padding: 20px;
+      }
+    }
+
+    /* Larger screens */
+    @media (min-width: 769px) {
+      .app-container {
+        max-width: 700px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <div class="converter">
+      <div class="theme-switcher">
+        <button class="theme-btn" id="lightTheme" aria-label="Светлая тема"></button>
+        <button class="theme-btn" id="graphiteTheme" aria-label="Графитовая тема"></button>
+        <button class="theme-btn" id="darkTheme" aria-label="Темная тема"></button>
+      </div>
+
+      <h1>Оффлайн Конвертер Валют</h1>
+
+      <div class="form-group">
+        <label for="amount">Сумма:</label>
+        <input type="number" id="amount" placeholder="Введите сумму" min="0" step="any">
+      </div>
+
+      <div class="form-group">
+        <label for="fromCurrency">Продам:</label>
+        <select id="fromCurrency"></select>
+      </div>
+
+      <div class="form-group">
+        <label for="toCurrency">Получу:</label>
+        <select id="toCurrency"></select>
+      </div>
+
+      <div class="form-group">
+        <label for="exchangeRate">Курс обмена:</label>
+        <input type="number" id="exchangeRate" placeholder="Введите курс обмена" min="0" step="any">
+      </div>
+
+      <button id="convert" class="convert-btn">Конвертировать</button>
+      
+      <div id="result" class="result"></div>
+
+      <div class="section">
+        <div class="collapsible-header" id="settingsHeader">
+          <h3>Настройки валют</h3>
+        </div>
+        <div class="collapsible-content" id="settingsContent">
+          <div class="form-group">
+            <label for="baseCurrency">Основная валюта:</label>
+            <select id="baseCurrency"></select>
+          </div>
+
+          <h3>Добавить валюту</h3>
+          <div class="form-group">
+            <label for="newCurrencyName">Название валюты:</label>
+            <input type="text" id="newCurrencyName" placeholder="Например: USD, EUR, BTC">
+          </div>
+          <div class="form-group">
+            <label for="newCurrencyRate">Курс к основной валюте:</label>
+            <input type="number" id="newCurrencyRate" placeholder="Например: 0.011" min="0" step="any">
+          </div>
+          
+          <div class="btn-group">
+            <button id="addCurrency">Добавить валюту</button>
+            <button id="manageCurrencies" class="secondary">Управление валютами</button>
+          </div>
+
+          <div id="currencyManagement" style="display: none; margin-top: 20px;">
+            <h3>Управление валютами</h3>
+            <ul id="currencyList" class="currencies-list"></ul>
+            <button id="confirmDelete" class="danger">Удалить выбранные</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="collapsible-header" id="historyHeader">
+          <h3>История конвертаций</h3>
+        </div>
+        <div class="collapsible-content" id="historyContent">
+          <table id="historyTable">
+            <thead>
+              <tr>
+                <th>Время</th>
+                <th>Дата</th>
+                <th>Сумма</th>
+                <th>Примечание</th>
+                <th>Действия</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+          <button id="clearHistory" class="danger" style="margin-top: 16px;">Очистить историю</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Инициализация данных
+    const defaultCurrencies = {
+      "RUB": 1,
+      "USD": 0.011,
+      "EUR": 0.01,
+      "CNY": 0.08
+    };
+
+    let currencies = JSON.parse(localStorage.getItem("currencies")) || defaultCurrencies;
+    let baseCurrency = localStorage.getItem("baseCurrency") || "RUB";
+    let history = JSON.parse(localStorage.getItem("history")) || [];
+    let theme = localStorage.getItem("theme") || "light";
+
+    // DOM элементы
+    const fromCurrencySelect = document.getElementById("fromCurrency");
+    const toCurrencySelect = document.getElementById("toCurrency");
+    const baseCurrencySelect = document.getElementById("baseCurrency");
+    const amountInput = document.getElementById("amount");
+    const exchangeRateInput = document.getElementById("exchangeRate");
+    const resultElement = document.getElementById("result");
+    const currencyManagement = document.getElementById("currencyManagement");
+    const settingsHeader = document.getElementById("settingsHeader");
+    const settingsContent = document.getElementById("settingsContent");
+    const historyHeader = document.getElementById("historyHeader");
+    const historyContent = document.getElementById("historyContent");
+
+    // Коллапсы секций
+    function toggleCollapsible(header, content) {
+      header.classList.toggle("collapsed");
+      if (content.classList.contains("collapsed")) {
+        content.classList.remove("collapsed");
+      } else {
+        content.classList.add("collapsed");
+      }
+    }
+
+    settingsHeader.addEventListener("click", () => {
+      toggleCollapsible(settingsHeader, settingsContent);
+    });
+
+    historyHeader.addEventListener("click", () => {
+      toggleCollapsible(historyHeader, historyContent);
+    });
+
+    // На мобильных устройствах сворачиваем секции по умолчанию
+    function setupMobileView() {
+      if (window.innerWidth <= 768) {
+        toggleCollapsible(settingsHeader, settingsContent);
+        toggleCollapsible(historyHeader, historyContent);
+      }
+    }
+
+    // Применение темы
+    function applyTheme() {
+      document.body.className = theme;
+      document.querySelectorAll(".theme-btn").forEach(btn => {
+        btn.classList.remove("active");
+      });
+      document.getElementById(`${theme}Theme`).classList.add("active");
+      localStorage.setItem("theme", theme);
+    }
+
+    // Переключение темы
+    function setTheme(newTheme) {
+      theme = newTheme;
+      applyTheme();
+    }
+
+    // Авто-расчет курса при изменении валют
+    function updateExchangeRate() {
+      const fromCurrency = fromCurrencySelect.value;
+      const toCurrency = toCurrencySelect.value;
+      
+      if (!fromCurrency || !toCurrency) return;
+      
+      const fromRate = currencies[fromCurrency];
+      const toRate = currencies[toCurrency];
+      
+      // Курс относительно базовой валюты
+      const rate = toRate / fromRate;
+      exchangeRateInput.value = rate.toFixed(6);
+    }
+
+    // Заполнение выпадающих списков
+    function populateCurrencies() {
+      // Сортируем валюты
+      const sortedCurrencies = Object.keys(currencies).sort();
+      
+      [fromCurrencySelect, toCurrencySelect, baseCurrencySelect].forEach(select => {
+        const currentValue = select.value;
+        select.innerHTML = '';
+        
+        sortedCurrencies.forEach(currency => {
+          const option = document.createElement("option");
+          option.value = currency;
+          option.textContent = currency;
+          select.appendChild(option);
+        });
+        
+        // Восстанавливаем предыдущий выбор если возможно
+        if (currentValue && sortedCurrencies.includes(currentValue)) {
+          select.value = currentValue;
+        }
+      });
+      
+      baseCurrencySelect.value = baseCurrency;
+      
+      // Если есть хотя бы две валюты, выбираем разные для обмена
+      if (sortedCurrencies.length >= 2) {
+        if (fromCurrencySelect.value === toCurrencySelect.value) {
+          toCurrencySelect.value = sortedCurrencies.find(c => c !== fromCurrencySelect.value) || sortedCurrencies[0];
+        }
+      }
+      
+      // Обновляем курс
+      updateExchangeRate();
+    }
+
+    // Конвертация валют
+    function convert() {
+      const amount = parseFloat(amountInput.value);
+      const from = fromCurrencySelect.value;
+      const to = toCurrencySelect.value;
+      const exchangeRate = parseFloat(exchangeRateInput.value);
+
+      if (isNaN(amount) || amount <= 0) {
+        showAlert("Введите корректную сумму!");
+        return;
+      }
+
+      if (isNaN(exchangeRate) || exchangeRate <= 0) {
+        showAlert("Введите корректный курс обмена!");
+        return;
+      }
+
+      const result = amount * exchangeRate;
+      
+      // Показываем результат с анимацией
+      resultElement.textContent = `${amount.toFixed(2)} ${from} = ${result.toFixed(2)} ${to}`;
+      resultElement.classList.add("show");
+
+      // Добавление в историю
+      const note = prompt("Введите примечание (необязательно):") || "";
+      const now = new Date();
+      
+      history.push({
+        time: now.toLocaleTimeString(),
+        date: now.toLocaleDateString(),
+        amount: `${amount.toFixed(2)} ${from} → ${result.toFixed(2)} ${to}`,
+        note: note,
+        timestamp: now.getTime()
+      });
+      
+      // Сортируем историю по убыванию времени
+      history.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+      
+      localStorage.setItem("history", JSON.stringify(history));
+      updateHistoryTable();
+    }
+
+    // Уведомления
+    function showAlert(message) {
+      alert(message);
+    }
+
+    // Обновление таблицы истории
+    function updateHistoryTable() {
+      const tbody = document.querySelector("#historyTable tbody");
+      tbody.innerHTML = "";
+      
+      if (history.length === 0) {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td colspan="5" style="text-align: center;">История пуста</td>`;
+        tbody.appendChild(row);
+        return;
+      }
+      
+      history.forEach((entry, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${entry.time}</td>
+          <td>${entry.date}</td>
+          <td>${entry.amount}</td>
+          <td>${entry.note}</td>
+          <td>
+            <button class="action-btn delete" onclick="deleteEntry(${index})">Удалить</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    // Удаление записи из истории
+    function deleteEntry(index) {
+      if (confirm("Удалить эту запись из истории?")) {
+        history.splice(index, 1);
+        localStorage.setItem("history", JSON.stringify(history));
+        updateHistoryTable();
+      }
+    }
+
+    // Обновление списка валют для управления
+    function updateCurrencyList() {
+      const currencyList = document.getElementById("currencyList");
+      currencyList.innerHTML = "";
+      
+      Object.keys(currencies).sort().forEach(currency => {
+        const li = document.createElement("li");
+        
+        // Не позволяем удалять базовую валюту
+        if (currency === baseCurrency) {
+          li.innerHTML = `
+            <span>${currency} (Основная валюта)</span>
+          `;
+        } else {
+          li.innerHTML = `
+            <input type="checkbox" id="curr_${currency}" value="${currency}">
+            <label for="curr_${currency}">${currency} (${currencies[currency]})</label>
+          `;
+        }
+        currencyList.appendChild(li);
+      });
+    }
+
+    // Обработчики событий
+    document.getElementById("convert").addEventListener("click", convert);
+
+    document.getElementById("clearHistory").addEventListener("click", () => {
+      if (confirm("Вы уверены, что хотите очистить всю историю конвертаций?")) {
+        history = [];
+        localStorage.setItem("history", JSON.stringify(history));
+        updateHistoryTable();
+      }
+    });
+
+    document.getElementById("addCurrency").addEventListener("click", () => {
+      const nameInput = document.getElementById("newCurrencyName");
+      const rateInput = document.getElementById("newCurrencyRate");
+      
+      const name = nameInput.value.trim().toUpperCase();
+      const rate = parseFloat(rateInput.value);
+      
+      if (!name || name.length < 1 || name.length > 5) {
+        showAlert("Введите корректное название валюты (1-5 символов)!");
+        return;
+      }
+      
+      if (isNaN(rate) || rate <= 0) {
+        showAlert("Введите корректный курс обмена!");
+        return;
+      }
+      
+      if (currencies[name]) {
+        if (!confirm(`Валюта ${name} уже существует. Обновить курс?`)) {
+          return;
+        }
+      }
+      
+      currencies[name] = rate;
+      localStorage.setItem("currencies", JSON.stringify(currencies));
+      
+      nameInput.value = "";
+      rateInput.value = "";
+      
+      populateCurrencies();
+      showAlert(`Валюта ${name} добавлена`);
+    });
+
+    document.getElementById("manageCurrencies").addEventListener("click", () => {
+      updateCurrencyList();
+      currencyManagement.style.display = currencyManagement.style.display === "none" ? "block" : "none";
+    });
+
+    document.getElementById("confirmDelete").addEventListener("click", () => {
+      const checkboxes = document.querySelectorAll("#currencyList input[type='checkbox']:checked");
+      
+      if (checkboxes.length === 0) {
+        showAlert("Выберите валюты для удаления");
+        return;
+      }
+      
+      if (confirm(`Вы уверены, что хотите удалить ${checkboxes.length} валют?`)) {
+        checkboxes.forEach(checkbox => {
+          delete currencies[checkbox.value];
+        });
+        
+        localStorage.setItem("currencies", JSON.stringify(currencies));
+        populateCurrencies();
+        updateCurrencyList();
+        showAlert("Выбранные валюты удалены");
+      }
+    });
+
+    baseCurrencySelect.addEventListener("change", (e) => {
+      const newBase = e.target.value;
+      
+      if (newBase === baseCurrency) return;
+      
+      if (confirm(`Изменить основную валюту на ${newBase}?`)) {
+        baseCurrency = newBase;
+        localStorage.setItem("baseCurrency", baseCurrency);
+        showAlert(`Основная валюта изменена на ${baseCurrency}`);
+        updateCurrencyList();
+      } else {
+        e.target.value = baseCurrency;
+      }
+    });
+
+    // Автоматический расчет курса при выборе валют
+    fromCurrencySelect.addEventListener("change", updateExchangeRate);
+    toCurrencySelect.addEventListener("change", updateExchangeRate);
+
+    // Обработчики тем
+    document.getElementById("lightTheme").addEventListener("click", () => setTheme("light"));
+    document.getElementById("darkTheme").addEventListener("click", () => setTheme("dark"));
+    document.getElementById("graphiteTheme").addEventListener("click", () => setTheme("graphite"));
+
+    // Инициализация
+    document.addEventListener("DOMContentLoaded", () => {
+      // Применяем тему
+      applyTheme();
+      
+      // Заполняем списки валют
+      populateCurrencies();
+      
+      // Обновляем таблицу истории
+      updateHistoryTable();
+      
+      // Настраиваем вид для мобильных устройств
+      setupMobileView();
+      
+      // Включаем глобальный доступ к функции удаления записи
+      window.deleteEntry = deleteEntry;
+    });
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js')
+    .then(() => console.log('Service Worker зарегистрирован'))
+    .catch(err => console.error('Ошибка регистрации Service Worker:', err));
+}
+</script>
+</body>
+</html>
