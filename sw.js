@@ -27,9 +27,11 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request).then(response =>
-      response || fetch(event.request)
-    )
+    caches.match(event.request).then(response => {
+      // Если ресурс есть в кэше, возвращаем его.
+      // Если нет - возвращаем пустой ответ с ошибкой.
+      return response || new Response(null, { status: 404 });
+    })
   );
 });
 
