@@ -37,7 +37,8 @@ jobs:
 
     # 6. Декодируем и сохраняем ключ подписи из секрета GitHub
     - name: Decode Keystore
-      run: echo ${{ secrets.KEYSTORE_BASE64 }} | base64 --decode > ${{ github.workspace }}/android/app/my-release-key.jks
+      run: 
+echo "${{ secrets.KEYSTORE_BASE64 }} | base64 --decode > ${{ github.workspace }}/android/app/my-release-key.jks"
 
     # 7. Даем права на выполнение скрипту сборки
     - name: Make gradlew executable
