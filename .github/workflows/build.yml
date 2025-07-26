@@ -30,6 +30,10 @@ jobs:
     - name: Sync project
       run: npx cap sync android
 
+    - name: Make gradlew executable
+      run: chmod +x ./gradlew
+      working-directory: ./android
+
     - name: Build APK
       run: ./gradlew assembleDebug
       working-directory: ./android
