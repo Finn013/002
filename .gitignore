@@ -3,7 +3,7 @@
 
 # Build output
 /www
-/android
+
 
 # Logs
 npm-debug.log*

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">002</string>
+    <string name="title_activity_main">002</string>
+    <string name="package_name">com.finn013.app002</string>
+    <string name="custom_url_scheme">com.finn013.app002</string>
+</resources>
